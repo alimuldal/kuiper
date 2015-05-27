@@ -2,15 +2,15 @@
 # By Anne M. Archibald, 2007 and 2009
 import numpy as np
 from numpy import copy, sort, amax, arange, exp, sqrt, abs, floor, searchsorted
-from scipy import factorial, comb
+from scipy.special import factorial, comb
 import itertools
 
 def kuiper_FPP(D,N):
     """Compute the false positive probability for the Kuiper statistic.
 
-    Uses the set of four formulas described in Paltani 2004; they report 
-    the resulting function never underestimates the false positive probability 
-    but can be a bit high in the N=40..50 range. (They quote a factor 1.5 at 
+    Uses the set of four formulas described in Paltani 2004; they report
+    the resulting function never underestimates the false positive probability
+    but can be a bit high in the N=40..50 range. (They quote a factor 1.5 at
     the 1e-7 level.
 
     Parameters
@@ -27,7 +27,7 @@ def kuiper_FPP(D,N):
 
     Reference
     ---------
-    Paltani, S., "Searching for periods in X-ray observations using 
+    Paltani, S., "Searching for periods in X-ray observations using
     Kuiper's test. Application to the ROSAT PSPC archive", Astronomy and
     Astrophysics, v.240, p.789-790, 2004.
 
@@ -53,7 +53,7 @@ def kuiper_FPP(D,N):
             s += term
         return s
     else:
-        z = D*sqrt(N) 
+        z = D*sqrt(N)
         S1 = 0.
         term_eps = 1e-12
         abs_eps = 1e-100
@@ -74,11 +74,11 @@ def kuiper_FPP(D,N):
 
 def kuiper(data, cdf=lambda x: x, args=()):
     """Compute the Kuiper statistic.
-    
-    Use the Kuiper statistic version of the Kolmogorov-Smirnov test to 
-    find the probability that something like data was drawn from the 
+
+    Use the Kuiper statistic version of the Kolmogorov-Smirnov test to
+    find the probability that something like data was drawn from the
     distribution whose CDF is given as cdf.
-    
+
     Parameters
     ----------
     data : array-like
@@ -99,25 +99,25 @@ def kuiper(data, cdf=lambda x: x, args=()):
 
     Notes
     -----
-    The Kuiper statistic resembles the Kolmogorov-Smirnov test in that 
-    it is nonparametric and invariant under reparameterizations of the data. 
-    The Kuiper statistic, in addition, is equally sensitive throughout 
-    the domain, and it is also invariant under cyclic permutations (making 
-    it particularly appropriate for analyzing circular data). 
+    The Kuiper statistic resembles the Kolmogorov-Smirnov test in that
+    it is nonparametric and invariant under reparameterizations of the data.
+    The Kuiper statistic, in addition, is equally sensitive throughout
+    the domain, and it is also invariant under cyclic permutations (making
+    it particularly appropriate for analyzing circular data).
 
-    Returns (D, fpp), where D is the Kuiper D number and fpp is the 
-    probability that a value as large as D would occur if data was 
+    Returns (D, fpp), where D is the Kuiper D number and fpp is the
+    probability that a value as large as D would occur if data was
     drawn from cdf.
 
-    Warning: The fpp is calculated only approximately, and it can be 
+    Warning: The fpp is calculated only approximately, and it can be
     as much as 1.5 times the true value.
 
-    Stephens 1970 claims this is more effective than the KS at detecting 
-    changes in the variance of a distribution; the KS is (he claims) more 
+    Stephens 1970 claims this is more effective than the KS at detecting
+    changes in the variance of a distribution; the KS is (he claims) more
     sensitive at detecting changes in the mean.
 
-    If cdf was obtained from data by fitting, then fpp is not correct and 
-    it will be necessary to do Monte Carlo simulations to interpret D. 
+    If cdf was obtained from data by fitting, then fpp is not correct and
+    it will be necessary to do Monte Carlo simulations to interpret D.
     D should normally be independent of the shape of CDF.
 
     """
@@ -139,7 +139,7 @@ def kuiper_two(data1, data2):
         The first set of data values.
     data2 : array-like
         The second set of data values.
-    
+
     Returns
     -------
     D : float
@@ -160,7 +160,7 @@ def kuiper_two(data1, data2):
 
     cdfv1 = searchsorted(data2, data1)/float(len(data2)) # this could be more efficient
     cdfv2 = searchsorted(data1, data2)/float(len(data1)) # this could be more efficient
-    D = (amax(cdfv1-arange(len(data1))/float(len(data1))) + 
+    D = (amax(cdfv1-arange(len(data1))/float(len(data1))) +
             amax(cdfv2-arange(len(data2))/float(len(data2))))
 
     Ne = len(data1)*len(data2)/float(len(data1)+len(data2))
@@ -174,7 +174,7 @@ def fold_intervals(intervals):
     Convert a list of intervals (ai, bi, wi) to a list of non-overlapping
     intervals covering (0,1). Each output interval has a weight equal
     to the sum of the wis of all the intervals that include it. All intervals
-    are interpreted modulo 1, and weights are accumulated counting 
+    are interpreted modulo 1, and weights are accumulated counting
     multiplicity.
 
     Parameters
@@ -189,7 +189,7 @@ def fold_intervals(intervals):
         The endpoints of a set of intervals covering [0,1]; breaks[0]=0 and
         breaks[-1] = 1
     weights : array of floats of length N-1
-        The ith element is the sum of number of times the interval 
+        The ith element is the sum of number of times the interval
         breaks[i],breaks[i+1] is included in each interval times the weight
         associated with that interval.
 
@@ -208,7 +208,7 @@ def fold_intervals(intervals):
             # [0,1] rather than [1,1]. So trap the special case.
             breaks.add(fb)
             r.append((fb,1,-wt))
-        
+
     breaks = list(breaks)
     breaks.sort()
     breaks_map = dict([(f,i) for (i,f) in enumerate(breaks)])
@@ -221,7 +221,7 @@ def fold_intervals(intervals):
 
 def cdf_from_intervals(breaks, totals):
     """Construct a callable piecewise-linear CDF from a pair of arrays.
-    
+
     Take a pair of arrays in the format returned by fold_intervals and
     make a callable cumulative distribution function on the interval
     (0,1).
@@ -236,7 +236,7 @@ def cdf_from_intervals(breaks, totals):
     Returns
     -------
     f : callable
-        A cumulative distribution function corresponding to the 
+        A cumulative distribution function corresponding to the
         piecewise-constant probability distribution given by breaks, weights
 
     """
@@ -253,13 +253,13 @@ def cdf_from_intervals(breaks, totals):
     c /= c[-1]
     def cdf(x):
         ix = np.searchsorted(b[:-1],x)
-        l, r = b[ix-1], b[ix] 
+        l, r = b[ix-1], b[ix]
         return ((r-x)*c[ix-1]+(x-l)*c[ix])/(r-l)
     return cdf
 
 def interval_overlap_length(i1,i2):
     """Compute the length of overlap of two intervals.
-    
+
     Parameters
     ----------
     i1, i2 : pairs of two floats
@@ -269,7 +269,7 @@ def interval_overlap_length(i1,i2):
     -------
     l : float
         The length of the overlap between the two intervals.
-    
+
     """
     (a,b) = i1
     (c,d) = i2
@@ -291,7 +291,7 @@ def interval_overlap_length(i1,i2):
 def histogram_intervals(n, breaks, totals):
     """Histogram of a piecewise-constant weight function.
 
-    This function takes a piecewise-constant weight function and 
+    This function takes a piecewise-constant weight function and
     computes the average weight in each histogram bin.
 
     Parameters
@@ -302,7 +302,7 @@ def histogram_intervals(n, breaks, totals):
         Endpoints of the intervals in the PDF
     totals : array of floats of length N-1
         Probability densities in each bin
-    
+
     Returns
     -------
     h : array of floats
